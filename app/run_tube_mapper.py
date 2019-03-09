@@ -25,7 +25,7 @@ class StationsScraper(BaseClient):
     def __init__(self):
         super().__init__()
         self._tube_stations = []
-        self._data = {}
+        self._data = {'station_names': set()}
 
     def get_tube_stations(self, url: str) -> list:
         """
@@ -45,12 +45,18 @@ class StationsScraper(BaseClient):
             anchor = station.findChild('a')
             href = anchor.get('href')
             station_name = anchor.string
+            self._data['station_names'].add(station_name)
             station_url = urljoin(url, href)
             self._tube_stations.append({'station_name': station_name, 'station_url': station_url})
 
         self._data['tube_stations'] = self._tube_stations
-
         return self._tube_stations
+
+    def get_dlr_stations(self, url: str) -> list:
+        """
+        Works similarly to get_tube_stations, but respects the different layout of the
+        """
+        dlr_stations = []
 
     def _get_nearest_neighbours_for_station(self, url: str):
         pass
@@ -60,4 +66,3 @@ if __name__ == '__main__':
     client = StationsScraper()
     station_list_url = 'https://en.wikipedia.org/wiki/List_of_London_Underground_stations'
     tube_stations = client.get_tube_stations(station_list_url)
-    print(tube_stations)
